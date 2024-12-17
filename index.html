@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Untitled</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-DramaWiki - Plataforma de Series Coreanas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .series-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .series-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            height: 350px;
+            width: 100%;
+        }
+        .series-card:hover {
+            transform: scale(1.05);
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .glowing-border {
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+       
+.actor-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Tres columnas por fila */
+    gap: 20px; /* Espaciado entre perfiles */
+    justify-items: center; /* Centra cada perfil horizontalmente */
+    padding: 20px;
+}
+
+.actor-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    width: 140px;
+    color: #fff;
+}
+
+.actor-profile:hover {
+    transform: translateY(-10px) scale(1.1); /* Animación de desplazamiento y zoom */
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 133, 255, 0.6); /* Sombra azul vibrante */
+}
+
+.actor-profile img {
+    border-radius: 20%; /* Bordes redondeados estilo Disney+ */
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    transition: transform 0.4s ease, border 0.4s ease;
+    border: 3px solid transparent;
+}
+
+.actor-profile:hover img {
+    transform: rotate(-2deg); /* Animación de inclinación */
+    border: 3px solid #0085ff; /* Borde azul vibrante */
+}
+
+.actor-profile p {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #aadfff; /* Texto azul claro */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* Sombras en el texto */
+}
+
+
+        
+
+
+.star {
+    font-size: 30px; /* Tamaño más grande para destacar */
+    color: #FFD700; /* Dorado brillante inicial */
+    cursor: pointer;
+    transition: transform 0.3s ease, color 0.3s ease; /* Transición suave */
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); /* Brillo inicial */
+}
+
+.star:hover {
+    transform: scale(1.3); /* Aumenta de tamaño al pasar el cursor */
+    color: #FFAA00; /* Dorado más intenso */
+    text-shadow: 0 0 15px rgba(255, 170, 0, 0.8); /* Aumenta el brillo */
+}
+
+.star.active {
+    color: #FFB400; /* Color más cálido para estrellas activas */
+    text-shadow: 0 0 10px rgba(255, 180, 0, 0.7); /* Resplandor más visible */
+}
+
+/* Animación de entrada */
+@keyframes bounce {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.star.active {
+    animation: bounce 0.5s ease-in-out; /* Rebote cuando una estrella está activa */
+}
+
+
+     
+        .follow-success {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <nav class="fixed top-0 w-full bg-black/50 backdrop-blur-md z-50 p-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-cyan-400"><a href="#seriesFeed">DraK Asia</a></h1>
+        <div class="flex space-x-4">
+            <input type="text" id="searchInput" class="p-2 text-black" placeholder="Buscar por actor o serie...">
+            <button id="searchBtn" class="text-white hover:text-cyan-400">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div id="seriesFeed" class="container mx-auto mt-20 p-4">
+        <div id="seriesGrid" class="series-grid">
+            <!-- Las series se insertarán dinámicamente aquí -->
+        </div>
+    </div>
+
+    <div id="seriesDetailModal" class="modal-overlay hidden">
+        <div class="container mx-auto p-6 relative">
+            <button class="absolute top-4 right-4 text-white hover:text-red-500" id="closeDetailModal">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="seriesDetailContent" class="bg-gray-800 rounded-lg p-6 relative">
+                <img src="https://cdn-icons-png.flaticon.com/512/7021/7021860.png" id="followIcon" class="absolute top-4 right-4 w-10 h-10 cursor-pointer" alt="Follow Icon">
+                <div id="followSuccess" class="follow-success">¡Seguido con éxito!</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class KDramaWiki {
+            constructor() {
+                this.series = [];
+                this.actors = {};
+                this.initEventListeners();
+            }
+
+            initEventListeners() {
+                document.getElementById('closeDetailModal').addEventListener('click', () => this.closeDetailModal());
+                document.getElementById('searchBtn').addEventListener('click', () => this.searchSeries());
+                document.getElementById('searchInput').addEventListener('input', () => this.searchSeries());
+            }
+
+            closeDetailModal() {
+                const modal = document.getElementById('seriesDetailModal');
+                modal.classList.add('hidden');
+            }
+
+            renderSeries(filteredSeries = this.series) {
+                const grid = document.getElementById('seriesGrid');
+                grid.innerHTML = '';
+
+                filteredSeries.forEach(series => {
+                    const seriesCard = document.createElement('div');
+                    seriesCard.classList.add('series-card', 'relative', 'cursor-pointer');
+                    
+                    seriesCard.innerHTML = 
+                        `<img src="${series.coverImage}" class="w-full h-64 object-cover rounded-lg">
+                        <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black to-transparent">
+                            <h3 class="text-lg font-bold">${series.title}</h3>
+                            <p class="text-sm">${series.director}</p>
+                        </div>`;
+
+                    seriesCard.addEventListener('click', () => this.showSeriesDetails(series));
+                    grid.appendChild(seriesCard);
+                });
+            }
+
+            showSeriesDetails(series) {
+                const modal = document.getElementById('seriesDetailModal');
+                const content = document.getElementById('seriesDetailContent');
+
+                content.innerHTML = 
+                    `<div class="relative">
+                        <img src="${series.coverImage}" class="w-full h-96 object-cover rounded-lg mb-4 glowing-border">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-3xl font-bold text-cyan-400">${series.title}</h2>
+                       </div>
+<div class="flex items-center mb-4">
+    <div class="text-white text-sm">
+        <strong>Director:</strong> ${series.director}
+    </div>
+    <div class="text-white text-sm ml-4">
+        <strong>País:</strong> ${series.pais}
+    </div>
+
+</div>
+<strong>Año:</strong> ${series.year}
+
+                                <strong>Año:</strong> ${series.year}
+                            </div>
+                        </div>
+                        <p class="text-white mb-4">${series.synopsis}</p>
+                        <h3 class="text-xl text-cyan-400 mb-2">Actores</h3>
+                        <div class="flex flex-wrap">
+                            ${series.actors.map(actor => 
+                                `<div class="actor-profile" onclick="showActorSeries('${actor.name}')">
+                                    <img src="${actor.photo}" alt="${actor.name}">
+                                    <p class="text-white">${actor.name}</p>
+                                </div>`
+                            ).join('')}
+                        </div>
+
+                        <h3 class="text-xl text-cyan-400 mb-2 mt-4">Calificación</h3>
+                        <div class="stars" id="stars">
+                            ${[1, 2, 3, 4, 5].map(i => 
+                                `<span class="star" data-value="${i}">&#9733;</span>`
+                            ).join('')}
+                        </div>
+                    </div>`;
+
+                modal.classList.remove('hidden');
+
+                const followIcon = document.getElementById('followIcon');
+                const followSuccess = document.getElementById('followSuccess');
+                followIcon.addEventListener('click', () => {
+                    followSuccess.style.display = 'block';
+                    setTimeout(() => followSuccess.style.display = 'none', 2000);
+                });
+
+                document.querySelectorAll('.star').forEach(star => {
+                    star.addEventListener('click', () => this.rateSeries(star));
+                });
+            }
+
+            rateSeries(star) {
+                const stars = document.querySelectorAll('.star');
+                stars.forEach(st => st.classList.remove('active'));
+                for (let i = 1; i <= star.dataset.value; i++) {
+                    stars[i - 1].classList.add('active');
+                }
+            }
+
+            searchSeries() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const filteredSeries = this.series.filter(series => 
+                    series.title.toLowerCase().includes(searchTerm) || 
+                    series.actors.some(actor => actor.name.toLowerCase().includes(searchTerm))
+                );
+                this.renderSeries(filteredSeries);
+            }
+        }
+
+        const wiki = new KDramaWiki();
+
+        wiki.series = [
+        
+   {
+    "title": "Amor en la puerta de al lado",
+    "director": "Yoo Je-won",
+    "pais": "Corea del Sur",
+    "year": 2024,
+    "synopsis": "Una mujer que intenta rehacer su vida vuelve a Corea y se reencuentra con un amigo de la infancia, con quien comparte una historia complicada.",
+    "coverImage": "https://ultimasnoticias.com.ve/wp-content/uploads/2024/10/LOVE-NEXT-DOOR1-scaled.jpg",
+    "Etiqueta": "Corea del Sur",
+    "actors": [
+        {
+            "name": "Jung Hae-in",
+            "photo": "https://1.vikiplatform.com/l/3069127l/78a2ce69f0.jpg?x=b&s=480x270&e=t&q=g",
+            "role": "Moderador"
+        },
+        {
+            "name": "Jung So-min",
+            "photo": "https://1.vikiplatform.com/pr/14304pr/081b9b2968.jpg?x=b",
+            "role": "Moderador"
+        }
+    ]
+},
+
+      
+{
+    "title": "La gloria",
+    "director": "Ahn Gil-ho",
+    "pais": "Corea del Sur",
+    "year": 2022,
+    "synopsis": "Muchos años después de ser brutalmente agredida en el instituto, una mujer pone en marcha un elaborado plan de venganza para que los responsables paguen por sus crímenes.",
+    "coverImage": "https://lh3.googleusercontent.com/VyEwdPpFd3J7I1xuznbcBNqCxEXegR5Z8Kus96DOlyvSsFGuzDx2A--9i5J4NydENxRF0kHlKkVfM1IUKeA-52a0QsY1iek-GXi96-HHtKK5kOpcCLDIN3CYr7cRhu-fbeYM8unwhBg=w2400",   
+    "actors": [
+        { "name": "Song Hye-kyo", "photo": "https://cdn.antaranews.com/cache/1200x800/2019/04/16/song.jpg", "role": "Moderador" },
+        { "name": "Lee Do-hyun", "photo": "https://1.vikiplatform.com/pr/21963pr/3942d6b238.jpg?x=b", "role": "Moderador" },
+        { "name": "Lim Ji-yeon", "photo": "https://1.vikiplatform.com/pr/20800pr/67615f617b.jpg?x=b", "role": "Moderador" }
+    ]
+},
+{
+    "title": "Entre dinastías: La nueva era",
+    "director": "Kim Jin-won",
+    "pais": "Corea del Sur",
+    "year": 2019,
+    "synopsis": "En el ocaso del período Goryeo, algunos se encargan de proclamar la llegada de una nueva era, mientras otros arriesgan todo sin importar las consecuencias.",
+    "coverImage": "https://media.themoviedb.org/t/p/w780/htYLE8PeFSSjtrk1uUnScA6SJua.jpg",
+    "actors": [
+        { "name": "Yang Se-jong", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg", "role": "Moderador" },
+        { "name": "Woo Do-hwan", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w", "role": "Moderador" },
+        { "name": "Kim Seol-hyun", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b", "role": "Moderador" }
+    ]
+},
+{
+    "title": "Vagabond",
+    "director": "Yoo In-sik",
+    "pais": "Corea del Sur",
+    "year": 2019,
+    "synopsis": "Un especialista se involucra en una gran conspiración tras un accidente de avión en el que fallecen 211 personas, incluido su sobrino.",
+    "coverImage": "https://resizing.flixster.com/oPTrR-ayPMKa29voMMQg7XG0hoI=/ems.cHJkLWVtcy1hc3NldHMvdHZzZXJpZXMvUlRUVjU2NDg3MC53ZWJw",
+    "actors": [
+        { "name": "Lee Seung-gi", "photo": "https://1.vikiplatform.com/pr/15190pr/d572a2415e.jpg?x=b", "role": "Moderador" },
+        { "name": "Bae Suzy", "photo": "https://1.vikiplatform.com/pr/16478pr/d1f6d0226b.jpg?x=b", "role": "Moderador" },
+        { "name": "Shin Sung-rok", "photo": "https://1.vikiplatform.com/pr/15025pr/2d9ed222aa.jpg?x=b", "role": "Moderador" }
+    ]
+},
+{
+    "title": "Mouse",
+    "director": "Kang Cheol-woo",
+    "pais": "Corea del Sur",
+    "year": 2021,
+    "synopsis": "Un oficial de policía se enfrenta a un asesino en serie psicópata y se une a la investigación para descubrir la verdad detrás de los comportamientos psicópatas.",
+    "coverImage": "https://images.justwatch.com/poster/310024438/s718/mouse-2021.jpg",
+    "actors": [
+        { "name": "Lee Seung-gi", "photo": "https://1.vikiplatform.com/pr/15190pr/d572a2415e.jpg?x=b", "role": "Moderador" },
+        { "name": "Lee Hee-joon", "photo": "https://upload.wikimedia.org/wikipedia/commons/6/61/Lee_Hee-joon_03.jpg", "role": "Moderador" },
+        { "name": "Park Ju-hyun", "photo": "https://1.vikiplatform.com/pr/23216pr/2d32053324.jpg?x=b", "role": "Moderador" }
+    ]
+},
+{
+    "title": "Nam-soon, una chica superfuerte",
+    "director": "Kim Jeong-sik, Lee Kyung-sik",
+    "year": 2023,
+    "synopsis": "Tres generaciones de mujeres con superpoderes descubren la realidad de un nuevo tipo de crimen relacionado con las drogas en Gangnam.",
+    "coverImage": "https://pics.filmaffinity.com/himssenyeoja_gang_nam_sun-632905541-large.jpg",
+    "actors": [
+        { "name": "Lee Yoo-mi", "photo": "https://1.vikiplatform.com/pr/22240pr/c00a5c9a06.jpg?x=b", "role": "Moderador" },
+        { "name": "Kim Jung-eun", "photo": "https://1.vikiplatform.com/pr/13567pr/c997c1affa.jpg?x=b", "role": "Moderador" },
+        { "name": "Kim Hae-sook", "photo": "https://1.vikiplatform.com/pr/13541pr/70b9c05055.jpg?x=b", "role": "Moderador" }
+    ]
+},
+          {
+    "title": "Sabuesos",
+    "director": "Kim Joo-hwan",
+    "year": 2023,
+    "synopsis": "Dos jóvenes boxeadores unen fuerzas con un benévolo prestamista para destruir a un despiadado usurero que se aprovecha de los más vulnerables.",
+    "coverImage": "https://televitos.com/wp-content/uploads/2023/06/Sabuesos_01.jpg",
+    "actors": [
+        { "name": "Woo Do-hwan", "photo": "https://1.vikiplatform.com/pr/21063pr/810089cd71.jpg?x=b", "role": "Moderador" },
+        { "name": "Lee Sang-yi", "photo": "https://1.vikiplatform.com/pr/21929pr/464ea9191e.jpg?x=b", "role": "Moderador" },
+        { "name": "Park Sung-woong", "photo": "https://upload.wikimedia.org/wikipedia/commons/e/e1/160206_Park_Sung-woong_6_cropped.jpg", "role": "Moderador" }
+    ]
+},
+{
+    "title": "Designated Survivor: 60 Días",
+    "director": "Yoo Jong-sun",
+    "year": 2019,
+    "synopsis": "Un exprofesor de química se convierte en presidente interino de Corea del Sur durante 60 días tras un ataque terrorista que mata a todos los funcionarios del gobierno.",
+    "coverImage": "https://occ-0-8407-1723.1.nflxso.net/dnm/api/v6/6AYY37jfdO6hpXcMjf9Yu5cnmO0/AAAABU5z8AwJ3LNmhTdHkWO48kywE8v0iGqSnpSED41NlzvxrynJBtYHI4XTtLgEmV8H9p3c5JAdGxWRl4pe86FNgOrtlhfFf28Wz9f2.jpg?r=d78",
+    "actors": [
+        { "name": "Ji Jin-hee", "photo": "https://1.vikiplatform.com/pr/14475pr/8a5df0eb58.jpg?x=b", "role": "Moderador" },
+        { "name": "Heo Joon-ho", "photo": "https://1.vikiplatform.com/pr/15664pr/e119e95a66.jpg?x=b", "role": "Moderador" },
+        { "name": "Choi Yoon-young", "photo": "https://1.vikiplatform.com/pr/16094pr/411847c374.jpg?x=b&s=480x270&e=t&q=g", "role": "Moderador" },
+        { "name": "Kang Han-na", "photo": "https://1.vikiplatform.com/pr/21512pr/742fa34fe2.jpg?x=b", "role": "Moderador" }
+    ]
+},
+
+          {
+    "title": "Tú tiempo llama",
+  
+    "director": "Kim Jin-won",
+    "pais": "Corea del Sur",
+    "year": 2023,
+    "synopsis": "Una mujer en duelo mágicamente viaja en el tiempo a 1998, donde conoce a un hombre que se parece mucho a su amado fallecido.",
+    "coverImage": "https://teinvitoalcine.com/download/multimedia.normal.82deeffa6f16b630.VHUtdGllbXBvLWxsYW1hLTExLW1pbl9ub3JtYWwud2VicA%3D%3D.webp",
+    "actors": [
+        { "name": "Ahn Hyo-seop", "photo": "https://1.vikiplatform.com/pr/21353pr/de7c72c5c6.jpg?x=b" },
+        { "name": "Jeon Yeo-been", "photo": "https://1.vikiplatform.com/pr/22660pr/0221e2183d.jpg?x=b" },
+        { "name": "Kang Hoon", "photo": "https://1.vikiplatform.com/pr/21956pr/72962b3db0.jpg?x=b" }
+    ]
+},
+{
+    "title": "Mi primer amor de verdad",
+    "director": "Oh Jin-suk",
+    "year": 2019,
+    "synopsis": "Yun Tae-o le abre las puertas de su casa a un grupo de amigos, y las puertas de su corazón a los enredos del amor y la amistad.",
+    "coverImage": "https://media.glamour.mx/photos/634ee01163d80a266a899b37/master/w_1600%2Cc_limit/Mi%2520primer%2520amor%2520de%2520verdad.jpg",
+    "actors": [
+        { "name": "Ji Soo", "photo": "https://1.vikiplatform.com/pr/20745pr/3d575f8717.jpg?x=b" },
+        { "name": "Jung Chae-yeon", "photo": "https://1.vikiplatform.com/pr/21401pr/2b77221ddf.jpg?x=b" },
+        { "name": "Jung Jin-young", "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a6/240717_Jung_Jin-young.png" }
+    ]
+},
+{
+    "title": "Aún así",
+    "director": "Kim Ga-ram",
+    "year": 2021,
+    "synopsis": "Un hombre que está molesto con las relaciones pero le gusta coquetear y una mujer que quiere tener una cita pero no cree en el amor.",
+    "coverImage": "https://finde.latercera.com/wp-content/uploads/2021/10/Aun-asi.jpeg",
+    "actors": [
+        { "name": "Song Kang", "photo": "https://1.vikiplatform.com/pr/21704pr/145492ac56.jpg?x=b" },
+        { "name": "Han So-hee", "photo": "https://1.vikiplatform.com/pr/21558pr/4d1df97077.jpg?x=b" },
+        { "name": "Chae Jong-hyeop", "photo": "https://1.vikiplatform.com/pr/23324pr/974d43c8c5.jpg?x=b" }
+    ]
+},
+{
+    "title": "Las inclemencias del amor",
+    "director": "Cha Young-hoon",
+    "year": 2022,
+    "synopsis": "Un melodrama de oficina que representa la vida laboral y amorosa de las personas que trabajan en la Administración Meteorológica de Corea.",
+    "coverImage": "https://images.justwatch.com/poster/301071695/s718/forecasting-love-and-weather.jpg",
+    "actors": [
+      {
+    "name": "Do Kyung-soo (D.O.)",
+    "photo": "https://1.vikiplatform.com/pr/15913pr/7857c5984b.jpg?x=b",
+    "role": "Moderador"
+},
+
+      { "name": "Park Min-young", "photo": "https://1.vikiplatform.com/pr/13732pr/f19867ae27.jpg?x=b" },
+        { "name": "Song Kang", "photo": "https://1.vikiplatform.com/pr/21704pr/145492ac56.jpg?x=b" },
+        { "name": "Yoon Park", "photo": "https://1.vikiplatform.com/pr/14898pr/44fbc181dd.jpg?x=b" }
+    ]
+},
+{
+    "title": "El amor vuelve a casa",
+    "director": "Kim Da-ye",
+    "year": 2024,
+    "synopsis": "Un hombre que se alejó de su familia tras el fracaso de su negocio reaparece 11 años más tarde como el dueño del edificio donde viven y desata el caos.",
+    "coverImage": "https://www.lavanguardia.com/peliculas-series/images/serie/poster/2024/8/w1280/b5P7eSCNCddqygzfpqAaRWEbCly.jpg",
+    "actors": [
+        { "name": "Ji Jin-hee", "photo": "https://1.vikiplatform.com/pr/14475pr/8a5df0eb58.jpg?x=b" },
+        { "name": "Kim Ji-soo", "photo": "https://1.vikiplatform.com/pr/14224pr/b2dd9b089d.jpg?x=b" },
+        { "name": "Son Na-eun", "photo": "https://1.vikiplatform.com/pr/13784pr/5d4fb3828e.jpg?x=b" },
+    ]
+},
+
+          
+          {
+    "title": "Príncipe por 100 días",
+    "director": "Lee Jong-jae",
+    "year": 2018,
+    "synopsis": "Lee Yool, un joven príncipe heredero, pierde la memoria tras un intento de asesinato y vive como plebeyo durante 100 días. Durante este tiempo, conoce a Hong Shim, una mujer fuerte e inteligente que dirige la primera agencia de soluciones en su aldea. Juntos, enfrentan desafíos mientras Lee Yool intenta recuperar su memoria y su identidad.",
+    "coverImage": "https://images.justwatch.com/poster/310076383/s332/temporada-1",
+    "actors": [
+        
+     { "name": "Do Kyung-soo (D.O.)", "photo": "https://1.vikiplatform.com/pr/15913pr/7857c5984b.jpg?x=b" },
+        { "name": "Nam Ji-hyun", "photo": "https://1.vikiplatform.com/pr/13699pr/5753b2c455.jpg?x=b" },
+        { "name": "Jo Sung-ha", "photo": "https://m.media-amazon.com/images/M/MV5BNWM5OTc0MzMtNWU3Zi00Mzk5LTgyMjktMzA3YTM5NzM4MzNkXkEyXkFqcGc@._V1_.jpg" },
+    ]
+        },
+  
+ {
+    "title": "Brewing Love",
+    "director": "Park Sun-ho",
+    "year": 2024,
+    "synopsis": "Brewing Love es una serie romántica que sigue la vida de Young-ju, una mujer ambiciosa y talentosa que ha alcanzado el título de reina de ventas en una prestigiosa compañía de licores. Conocida por su carisma y habilidades excepcionales en el mundo de los negocios, Young-ju parece tenerlo todo bajo control, hasta que su vida da un giro inesperado y en el otro lado de la historia está Min-ju, el joven y apuesto CEO de una cervecería artesanal que ha ganado reconocimiento por sus innovadoras técnicas de elaboración y su pasión por la cerveza de calidad. A pesar de su éxito profesional, Min-ju enfrenta desafíos personales y profesionales que lo mantienen en constante tensión.",
+    "coverImage": "https://media.senscritique.com/media/000022413834/0/brewing_love.jpg",
+    "actors": [
+        { "name": "Kim Se-jeong", "photo": "https://1.vikiplatform.com/pr/21383pr/f27d88f209.jpg?x=b" },
+        { "name": "Lee Jong-won", "photo": "https://1.vikiplatform.com/pr/22717pr/7f198e0fd8.jpg?x=b" },
+        { "name": "Shin Do-hyun", "photo": "https://1.vikiplatform.com/pr/21787pr/9734de9dd1.jpg?x=b" },
+        { "name": "Baek Sung-chul", "photo": "https://1.vikiplatform.com/pr/22536pr/89c595d421.jpg?x=b" },
+        { "name": "Lee Ki-young", "photo": "https://1.vikiplatform.com/pr/14711pr/bcea226be2.jpg?x=b&s=480x270&e=t&q=g" },
+      
+    ]
+            },
+            
+ {
+    "title": "El rey: eterno monarca",
+    "director": "Baek Sang-hoon, Jung Ji-hyun",
+    "year": 2020,
+    "synopsis": "Un emperador coreano contemporáneo atraviesa un enigmático portal y entra en un mundo paralelo, en el cual se encuentra con una resuelta detective de policía.",
+    "coverImage": "https://m.media-amazon.com/images/I/61ZAjvmdA1L._AC_UF894,1000_QL80_.jpg",
+    "actors": [
+        { "name": "Lee Min-ho", "photo": "https://1.vikiplatform.com/pr/15203pr/0eb6eff782.jpg?x=b" },
+        { "name": "Kim Go-eun", "photo": "https://1.vikiplatform.com/pr/21067pr/054b77ebbe.jpg?x=b" },
+        { "name": "Woo Do-hwan", "photo": "https://1.vikiplatform.com/pr/21063pr/810089cd71.jpg?x=b" },
+        
+      
+    ]
+            },
+            {
+    "title": "El juego del calamar",
+    "director": "Hwang Dong-hyuk",
+    "year": 2021,
+    "synopsis": "El juego del calamar sigue a 456 participantes desesperados que compiten en un concurso de supervivencia compuesto por juegos infantiles mortales. Los jugadores arriesgan sus vidas para ganar un premio de ₩45.6 mil millones, enfrentándose a dilemas morales y alianzas traicioneras.",
+    "coverImage": "https://www.lavanguardia.com/peliculas-series/images/serie/poster/2021/9/w1280/74qMRUy0lwkBBi39vsQVerIDkHj.jpg",
+    "actors": [
+        { "name": "Lee Jung-jae", "photo": "https://6.soompi.io/wp-content/uploads/image/e6cedfb34a4340ae893aa03b1fa9d45a/dummy.jpeg?s=900x600&e=t" },
+        { "name": "Lee Yoo-mi", "photo": "https://www.kosmo.com.my/wp-content/uploads/2022/02/LEE-YOO-MI-3-e1645527184545-768x488.jpg" },
+        { "name": "Park Hae-soo", "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Park_Hae-soo_in_2020.png/800px-Park_Hae-soo_in_2020.png" },
+        { "name": "Wi Ha-joon", "photo": "https://1.vikiplatform.com/pr/23382pr/d6c5771075.jpg?x=b" },
+        { "name": "Jung Ho-yeon", "photo": "https://0.soompi.io/wp-content/uploads/2022/09/29100113/Jung-Ho-Yeon-1.jpeg" },
+        { "name": "Oh Yeong-su", "photo": "https://koreajoongangdaily.joins.com/data/photo/2024/02/05/fbabf8f8-14ac-4f91-baa2-d40c424b9f0b.jpg" },
+        { "name": "Heo Sung-tae", "photo": "https://1.vikiplatform.com/pr/21477pr/3a6a810663.jpg?x=b" },
+        { "name": "Anupam Tripathi", "photo": "https://th-i.thgim.com/public/entertainment/movies/77zz01/article36981403.ece/alternates/FREE_1200/DSC03964" },
+        { "name": "Kim Joo-ryoung", "photo": "https://1.vikiplatform.com/pr/23375pr/254c45e80c.jpg?x=b" },
+        { "name": "Lee Byung-hun", "photo": "https://1.vikiplatform.com/pr/14662pr/676a421420.jpg?x=b" },
+        { "name": "Gong Yoo", "photo": "https://1.vikiplatform.com/pr/15754pr/25881c4b4d.jpg?x=b" }
+    ]
+},
+        
+
+             {
+    "title": "El juego del calamar 2",
+    "director": "Hwang Dong-hyuk  ",
+    "year": 2024,
+    "synopsis": "Tres años después de su victoria, el jugador 456 decide no viajar a Estados Unidos y regresa con un nuevo objetivo. Para conseguirlo, Gi-hun compite una vez más en el misterioso juego de supervivencia donde tendrá que superar situaciones de vida o muerte con nuevos participantes que sueñan con llevarse el premio de ₩45.6 mil millones.",
+    "coverImage": "https://www.sopitas.com/wp-content/uploads/2024/12/poster-el-juego-del-calamar-2.jpg?resize=691,1024",
+    "actors": [
+        { "name": "Lee Jung-jae", "photo": "https://6.soompi.io/wp-content/uploads/image/e6cedfb34a4340ae893aa03b1fa9d45a/dummy.jpeg?s=900x600&e=t" },
+        { "name": "Wi Ha-joon", "photo": "https://1.vikiplatform.com/pr/23382pr/d6c5771075.jpg?x=b" },
+        { "name": "Lee Byung-hun", "photo": "https://1.vikiplatform.com/pr/14662pr/676a421420.jpg?x=b" },
+        { "name": "Im Si-wan", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Kang Ha-neul", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" },
+        { "name": "Lee Jin-wook", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Park Sung-hoon", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Yang Dong-geun", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" },
+        { "name": "Jo Yu-ri", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Kang Ae-shim", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Lee Seo-hwan", "photo": "https://asianwiki.com/images/4/40/Lee_Seo-Won-p2.jpg" }
+    ]
+},
+            {
+    title: "Mi amor de las estrellas",
+    director: "Park Joon-hwa",
+    year: 2013,
+    synopsis: "Un famoso actor se enamora de una mujer con poderes sobrenaturales.",
+    coverImage: "https://images.justwatch.com/poster/307718974/s718/mi-amor-de-las-estrellas.jpg",
+    actors: [
+        { name: "Kim Soo-hyun", photo: "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { name: "Jun Ji-hyun", photo: "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { name: "Ahn Jae-hyun", photo: "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+ 
+{
+    "title": "Propuesta laboral",
+    "director": "Park Sun-ho",
+    "year": 2022,
+    "synopsis": "Shin Ha-ri, una empleada de oficina, se hace pasar por su amiga en una cita a ciegas para ahuyentar a un pretendiente, pero termina descubriendo que el pretendiente es su jefe.",
+    "coverImage": "https://i0.wp.com/quenosabiasdecoreadelsur.com/wp-content/uploads/2023/06/propuestalaboralquenosabiasdecoreadelsur-blog.jpeg?fit=600%2C900&ssl=1",
+    "actors": [
+        { "name": "Kim Sejeong", "photo": "https://1.vikiplatform.com/pr/21383pr/f27d88f209.jpg?x=b" },
+        { "name": "Ahn Hyo-seop", "photo": "https://1.vikiplatform.com/pr/21353pr/de7c72c5c6.jpg?x=b" },
+        { "name": "Kim Min-kyu", "photo": "https://1.vikiplatform.com/pr/21379pr/fc16385cf4.jpg?x=b" },
+        { "name": "Seol In-ah", "photo": "https://1.vikiplatform.com/pr/21314pr/33b532c804.jpg?x=b" }
+    ]
+},
+{
+    "title": "Mi adorable demonio",
+    "director": "Kim Jang-han y Kwon Da-som",
+    "year": 2023,
+    "synopsis": "Do Do-hee, una heredera chaebol, se casa por contrato con Jung Goo-won, un demonio que desprecia a los humanos. Tras conocerla, pierde sus poderes y debe protegerla para evitar su propia muerte.",
+    "coverImage": "https://media.vogue.mx/photos/657a23a774f359dab13faf8a/2:3/w_2560%2Cc_limit/mi-adorable-demonio-netflix.jpg",
+    "actors": [
+        { "name": "Kim Yoo-jung", "photo": "https://1.vikiplatform.com/pr/14174pr/9838bab8ad.jpg?x=b" },
+        { "name": "Song Kang", "photo": "https://1.vikiplatform.com/pr/21704pr/145492ac56.jpg?x=b" },
+        { "name": "Lee Sang-yi", "photo": "https://1.vikiplatform.com/pr/21929pr/464ea9191e.jpg?x=b" }
+    ]
+},
+{
+    "title": "Dulce hogar",
+    "director": "Lee Eung-bok, Jang Young-woo, Park So-hyun",
+    "year": 2020,
+    "synopsis": "Tras la muerte de su familia en un accidente, el solitario Cha Hyun-soo se muda a un nuevo apartamento. Su vida tranquila pronto se ve perturbada por extraños incidentes que comienzan a ocurrir en su nuevo edificio. A medida que las personas se convierten en monstruos, Hyun-soo y otros residentes intentan sobrevivir.",
+    "coverImage": "https://e.rpp-noticias.io/xlarge/2020/12/23/083608_1038321.jpg",
+    "actors": [
+        { "name": "Song Kang", "photo": "https://1.vikiplatform.com/pr/21704pr/145492ac56.jpg?x=b" },
+        { "name": "Lee Jin-wook", "photo": "https://1.vikiplatform.com/pr/15227pr/273cbeb442.jpg?x=b" },
+        { "name": "Lee Si-young", "photo": "https://1.vikiplatform.com/pr/13670pr/6585c0b7ef.jpg?x=b" }
+    ]
+},
+{
+    title: "El Goblin",
+    director: "Lee Eung-bok",
+    year: 2016,
+    synopsis: "Un ser inmortal busca a una joven que podría ser la clave para poner fin a su sufrimiento eterno.",
+    coverImage: "https://images.justwatch.com/poster/185481575/s718/goblin-el-solitario-ser-inmortal.jpg",
+    actors:[
+    { name: "Gong Yoo", photo: "https://1.vikiplatform.com/pr/15754pr/25881c4b4d.jpg?x=b" },
+    { name: "Kim Go-eun", photo: "https://1.vikiplatform.com/pr/21067pr/054b77ebbe.jpg?x=b" },
+    { name: "Lee Dong-wook", photo: "https://i.mydramalist.com/jQQJvv_5c.jpg" },
+    { name: "Yoo In-na", photo: "https://1.vikiplatform.com/pr/13827pr/63af211308.jpg?x=b" }
+]
+
+},
+
+{
+    title: "Aterrizando en ti",
+    director: "Lee Jeong-hyo",
+    year: 2019,
+    synopsis: "Una rica heredera surcoreana sufre un accidente y termina aterrizando en Corea del Norte, donde un oficial de la milicia la protege.",
+    coverImage: "https://akamai.sscdn.co/tb/letras-blog/wp-content/uploads/2023/12/e9416a3-canciones-de-aterrizaje-de-emergencia-en-tu-corazon.webp",
+    actors: [
+        { name: "Hyun Bin", photo: "https://1.vikiplatform.com/pr/15639pr/3611116f24.jpg?x=b" },
+        { name: "Son Ye-jin", photo: "https://1.vikiplatform.com/pr/13901pr/39bf86d2e8.jpg?x=b" },
+        { name: "Kim Jung-hyun", photo: "https://1.vikiplatform.com/pr/21269pr/6e54052c65.jpg?x=b" }
+    ]
+},
+
+{
+    title: "Estamos muertos",
+    director: "Lee Jae-kyoo",
+    year: 2022,
+    synopsis: "Un grupo de estudiantes queda atrapado en su instituto durante un brote de virus zombi. Sin agua ni comida, deben luchar por su supervivencia mientras el ejército intenta contener la plaga.",
+    coverImage: "https://hips.hearstapps.com/hmg-prod/images/estamos-muertos-final-3-64074be1bb626.jpg?crop=0.615xw:1.00xh;0.177xw,0&resize=1200:*",
+    actors: [
+        { name: "Park Ji-hoo", photo: "https://1.vikiplatform.com/pr/23848pr/2fb87be243.jpg?x=b" },
+        { name: "Yoon Chan-young", photo: "https://i.pinimg.com/474x/28/bd/68/28bd687ee5521580a66126ce0e22e6fc.jpg" }
+      
+    ]
+},
+
+{
+    title: "Los herederos",
+    director: "Ang Eun-jin",
+    year: 2013,
+    synopsis: "Un joven hereda la compañía de su padre y se enamora de una chica de clase baja.",
+    coverImage: "https://images.justwatch.com/poster/287650505/s718/los-herederos.jpg",
+    actors: [
+        { name: "Lee Min-ho", photo: "https://1.vikiplatform.com/pr/15203pr/0eb6eff782.jpg?x=b" },
+        { name: "Park Shin-hye", photo: "https://1.vikiplatform.com/pr/13743pr/a0e443485c.jpg?x=b" },
+        { name: "Kim Woo-bin", photo: "https://1.vikiplatform.com/pr/15306pr/aaa6ffd27b.jpg?x=b" },
+        { name: "Kang Min-hyuk", photo: "https://1.vikiplatform.com/pr/15499pr/7152392347.jpg?x=b" }
+    ]
+},
+          
+             {
+    "title": "El Sr. Plancton",
+    "director": "Hong Jong-chan",
+    "year": 2024,
+    "synopsis": "Un hombre marcado por la desgracia se dispone a hacer el último viaje de su vida acompañado por su exnovia, la mujer más desafortunada del mundo.",
+    "coverImage": "https://www.netflix.com/es/title/81506124",
+    "actors": [
+        { "name": "Woo Do-hwan", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg", "role": "Moderador" },
+        { "name": "Lee Yoo-mi", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w", "role": "Moderador" },
+        { "name": "Oh Jung-se", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b", "role": "Moderador" }
+    ]
+},
+            {
+    "title": "Nuestro horizonte azul",
+    "director": "Kim Kyoo-tae",
+    "year": 2022,
+    "synopsis": "Varias historias de vida que se desarrollan en la cálida isla de Jeju, con catorce personajes principales en ocho historias relacionadas.",
+    "coverImage": "https://www.netflix.com/es/title/81568842",
+    "actors": [
+        { "name": "Lee Byung-heon", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Shin Min-ah", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Cha Seung-won", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+{
+    "title": "Amor en la ciudad",
+    "director": "Park Shin-woo",
+    "year": 2020-2021,
+    "synopsis": "Un apasionado arquitecto, enamorado de una mujer libre e independiente después de un romance junto al mar, se propone reencontrarse con ella en las calles de Seúl.",
+    "coverImage": "https://www.netflix.com/es/title/81340910",
+    "actors": [
+        { "name": "Ji Chang-wook", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Kim Ji-won", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Kim Min-seok", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+{
+    "title": "No hay boda sin caos",
+    "director": "Seo Joo-wan, Song Je-young",
+    "year": 2022,
+    "synopsis": "Seo Joon-hyung y Kim Na-eun se preparan para el matrimonio, enfrentando desafíos inesperados en el proceso.",
+    "coverImage": "https://www.netflix.com/es/title/81568851",
+    "actors": [
+        { "name": "Lee Jin-wook", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Lee Yeon-hee", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Kil Yong-woo", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+{
+    "title": "Abogado por un dólar",
+    "director": "Kim Jae-hyun, Shin Jung-hoon",
+    "year": 2022,
+    "synopsis": "Un abogado con las mejores habilidades y una comisión de apenas un dólar se enfrenta a la justicia ciega para defender a sus clientes.",
+    "coverImage": "https://www.disneyplus.com/es-mx/series/abogado-por-un-dolar/7Bf6WsRjVAQy",
+    "actors": [
+        { "name": "Namkoong Min", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Kim Ji-eun", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Choi Dae-hoon", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+            {
+    "title": "Urgencias existenciales",
+    "director": "Oh Hyun-jong",
+    "year": 2024,
+    "synopsis": "Dos médicos brillantes y antiguos rivales académicos se reencuentran por casualidad y lidian con problemas existenciales mientras hallan consuelo el uno en el otro.",
+    "coverImage": "https://www.netflix.com/es/title/81697985",
+    "actors": [
+        { "name": "Park Shin-hye", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Park Hyung-sik", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Yoon Park", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+{
+    "title": "Una noche de primavera",
+    "director": "Ahn Pan-seok",
+    "year": 2019,
+    "synopsis": "Lee Jung-in, una bibliotecaria, y Yoo Ji-ho, un farmacéutico y padre soltero, comienzan a ver el amor y las relaciones desde una nueva perspectiva tras conocerse casualmente.",
+    "coverImage": "https://www.netflix.com/mx/title/81094069",
+    "actors": [
+        { "name": "Han Ji-min", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Jung Hae-in", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Kim Jun-han", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+{
+    "title": "Eres mi primavera",
+    "director": "Jung Ji-hyun",
+    "year": 2021,
+    "synopsis": "La conserje de un hotel y un psiquiatra, ambos con infancias traumáticas, establecen un profundo vínculo tras verse envueltos en un desconcertante caso de asesinato.",
+    "coverImage": "https://www.netflix.com/es/title/81473201",
+    "actors": [
+        { "name": "Seo Hyun-jin", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Kim Dong-wook", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Yoon Park", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+{
+    "title": "Jerarquía",
+    "director": "Bae Hyun-jin",
+    "year": 2024,
+    "synopsis": "Kang Ha, un estudiante transferido, ingresa a la prestigiosa escuela secundaria Jooshin, donde el 0,01 % superior gobierna e impone su ley al resto.",
+    "coverImage": "https://www.netflix.com/es/title/81624364",
+    "actors": [
+        { "name": "Noh Jung-eui", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Lee Chae-min", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Kim Jae-won", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+{
+    "title": "Cómo flores en la arena",
+    "director": "Kim Jin-woo",
+    "year": 2023-2024,
+    "synopsis": "Kim Baek-doo, un prodigio del ssireum, considera retirarse del deporte hasta que se reúne con su amiga de la infancia Oh Yoo-kyung, quien se convierte en la jefa del equipo de gestión del club de ssireum.",
+    "coverImage": "https://www.netflix.com/es/title/81701142",
+    "actors": [
+        { "name": "Jang Dong-yoon", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Lee Joo-myung", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Yoon Jong-seok", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+{
+    "title": "Érase un amor rural",
+    "director": "Kwon Seok-jang",
+    "year": 2022,
+    "synopsis": "Han Ji-yool, un veterinario de Seúl, se traslada a la aldea de Heedong y conoce a Ahn Ja-young, una policía local con un secreto.",
+    "coverImage": "https://www.netflix.com/es/title/81612967",
+    "actors": [
+        { "name": "Joy (Park Soo-young)", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Choo Young-woo", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Baek Seong-cheol", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+{
+    "title": "Una vida fabulosa",
+    "director": "Kim Jung-hyun",
+    "year": 2022,
+    "synopsis": "Cuatro amigos luchan por cumplir sus sueños dentro del competitivo mundo de la moda mientras lidian con trabajos exigentes, dilemas románticos y noches salvajes en la ciudad.",
+    "coverImage": "https://media.vogue.mx/photos/63a4e5a0d684c8840d94c4b7/2:3/w_2560%2Cc_limit/la-vida-fabulosa-chae-soo-bin.jpg",
+    "actors": [
+        { "name": "Chae Soo-bin", "photo": "https://i.mydramalist.com/ABo7XL_5c.jpg" },
+        { "name": "Choi Min-ho", "photo": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSwejPn8MZABky4Ib_AbmBokKAh5xh7wVEWSotvnKHO8iwyqE9QvZ17EIPSMMrLyP17PkfP9UUy6sJk2oW7Iq_b0w" },
+        { "name": "Park Hee-jung", "photo": "https://1.vikiplatform.com/pr/10008pr/9022a104b9.jpg?x=b" }
+    ]
+},
+            {
+                title: "Descendants of the Sun",
+                director: "Lee Eung-bok",
+                year: 2016,
+                synopsis: "Un soldado y una doctora se enamoran mientras enfrentan peligros.",
+                coverImage: "https://images.justwatch.com/poster/202546506/s718/descendants-of-the-sun.jpg",
+                actors: [
+                    { "name": "Song Joong-ki", "photo": "https://1.vikiplatform.com/pr/14866pr/62eb4af4e2.jpg?x=b" },
+  { "name": "Song Hye-kyo", "photo": "https://cdn.antaranews.com/cache/1200x800/2019/04/16/song.jpg" },
+  { "name": "Jin Goo", "photo": "https://1.vikiplatform.com/pr/15589pr/0973e276e0.jpg?x=b" },
+  { "name": "Kim Ji-won", "photo": "https://1.vikiplatform.com/pr/14221pr/6c16816ae3.jpg?x=b" },
+  { "name": "Onew", "photo": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Onew_Marie_Claire_Korea_April_2022.png" },
+  { "name": "Kim Min-seok", "photo": "https://1.vikiplatform.com/pr/15341pr/4185e35ce8.jpg?x=b" }
+                    
+                ]
+            }
+        ];
+
+        wiki.renderSeries();
+    </script>
+</body>
+</html>
+
+<!-- Icono de notificación de moderadores -->
+<div id="moderators-icon" class="fixed bottom-4 right-4 bg-cyan-400 p-3 rounded-full cursor-pointer">
+    <img src="https://cdn-icons-png.flaticon.com/256/18262/18262626.png" alt="Moderadores" class="w-8 h-8">
+</div>
+
+<!-- Modal de moderadores (expandido) -->
+<div id="moderators-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-gray-800 p-6 rounded-lg w-full h-full max-h-screen overflow-y-auto relative">
+        <!-- Botón para cerrar el modal -->
+        <button class="absolute top-4 right-4 text-white text-2xl" id="close-modal">
+            <i class="fas fa-times"></i> <!-- Icono de cerrar -->
+        </button>
+        
+        <h2 class="text-2xl font-bold text-cyan-400 mb-6">Moderadores</h2>
+        
+        <!-- Buscador de moderadores -->
+        <div class="mb-4">
+            <input type="text" id="moderator-search" placeholder="Buscar moderador..." class="w-full p-2 rounded-lg bg-gray-700 text-white">
+        </div>
+
+        <!-- Lista de moderadores -->
+        <div id="moderators-list" class="space-y-4"></div>
+    </div>
+</div>
+
+<script>
+    // Datos de moderadores con la cantidad de títulos
+    const moderators = [
+        { name: "Darell Vega", role: "Fundador", titlesCount: 78, imgSrc: "https://m.media-amazon.com/images/S/pv-target-images/80d21af2c4f9fb94460aadf6f0d73b52e91a18d1c9de0fe09e69ac8034a809e9._SX300_.jpg", verified: true },
+          { name: "Samuel Marin", role: "Fundador", titlesCount: 0, imgSrc: "https://i.pinimg.com/736x/e7/75/ec/e775ecc20a2b9930ca9e7ee62ba05fd7.jpg", verified: true },
+        { name: "Emily Torres", role: "Moderador", titlesCount: 5, imgSrc: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMcommjJ4uxDMd3Vsus3Nl-6WV_w-w3BUfCA&s", verified: false },
+          { name: "amy-70", role: "Moderador", titlesCount: 33, imgSrc: "https://occ-0-8407-1722.1.nflxso.net/dnm/api/v6/E8vDc_W8CLv7-yMQu8KMEC7Rrr8/AAAABbJIAbkjHS4QoHR0rs2bMGYAZLRYbWwpDFdg57FzmnBhyB3rZJ7FL-9HWUPvFWCj-UHxTJRBPuFzTdy6vEBmMmg0UvFJnuiB83AW.jpg?r=f44", verified: false },
+        { name: "Rafael Lauro", role: "Moderador", titlesCount: 0, imgSrc: "https://cdn.pixabay.com/photo/2021/06/07/19/23/kakashi-6318812_1280.jpg", verified: false },
+         
+        { name: "Carlos Méndez", role: "Moderador", titlesCount: 3, imgSrc: "https://i.pinimg.com/736x/0a/64/75/0a64753f3398b81f5898b09463a5e6be.jpg", verified: false },
+         { name: "Taty_395", role: "Moderador", titlesCount: 126, imgSrc: "https://i.mydramalist.com/67r8d_5c.jpg", verified: false },
+        { name: "Sariblood_33", role: "Moderador", titlesCount: 0, imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/20220226_Kim_Se-jeong_%EA%B9%80%EC%84%B8%EC%A0%95_for_Marie_Claire_Korea.jpg/170px-20220226_Kim_Se-jeong_%EA%B9%80%EC%84%B8%EC%A0%95_for_Marie_Claire_Korea.jpg", verified: false },
+        { name: "sejo_28", role: "Moderador", titlesCount: 78, imgSrc: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPHe-4631dB309LoB7ooqusqbNHD2zxk8x3g&s", verified: false },
+        { name: "rp_vp", role: "Moderador", titlesCount: 61, imgSrc: "https://media.vogue.mx/photos/6410cf873f370ce21019f8e6/2:3/w_2560%2Cc_limit/la-gloria-song-hye-kyo.jpg", verified: false }
+    ];
+
+    // Función para ordenar los moderadores por el número de títulos
+    function sortModeratorsByTitles() {
+        return moderators.sort((a, b) => b.titlesCount - a.titlesCount);
+    }
+
+    // Mostrar moderadores en el modal
+    function showModerators(searchQuery = "") {
+        const moderatorsList = document.getElementById('moderators-list');
+        moderatorsList.innerHTML = ""; // Limpiar la lista
+
+        const filteredModerators = sortModeratorsByTitles().filter(moderator => moderator.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+        filteredModerators.forEach((moderator, index) => {
+            const moderatorItem = document.createElement('div');
+            moderatorItem.className = "flex items-center bg-gray-700 p-4 rounded-lg relative";
+
+            let verificationIcon = moderator.verified 
+                ? `<img src="https://cdn-icons-png.flaticon.com/128/5556/5556625.png" alt="Verificado" class="w-6 h-6 mr-4">`
+                : '';
+            
+            let roleIcon = moderator.role === "Fundador"
+                ? `<img src="https://cdn-icons-png.flaticon.com/512/11476/11476491.png" alt="Fundador" class="w-8 h-8 mr-4 transform scale-125">`  // Etiqueta Fundador destacada
+                : `<img src="https://cdn-icons-png.flaticon.com/128/5556/5556625.png" alt="Moderador" class="w-6 h-6 mr-4">`;
+
+            // Agregar la etiqueta de moderador al lado del nombre
+            const roleLabel = moderator.role === "Moderador" 
+                ? `<span class="bg-cyan-400 text-white px-2 py-1 text-xs rounded-full ml-2">Moderador</span>`
+                : `<span class="bg-red-500 text-white px-2 py-1 text-xs rounded-full ml-2">Fundador</span>`; // Etiqueta de Fundador
+
+            // Mostrar solo el número de títulos con los que ha colaborado
+            const titlesCount = `<span class="text-sm text-gray-300 mt-2">Colaboró con ${moderator.titlesCount} títulos</span>`;
+
+            moderatorItem.innerHTML = `
+                ${roleIcon}
+                <img src="${moderator.imgSrc}" alt="${moderator.name}" class="w-14 h-14 rounded-full object-cover mr-4">
+                <div class="flex-grow">
+                    <p class="font-bold text-lg text-cyan-400">${moderator.name} ${roleLabel}</p>
+                    ${titlesCount}
+                </div>
+                ${verificationIcon}
+            `;
+
+            // Agregar etiquetas de Top 1, Top 2, y Top 3 con animación
+            if (index === 0) {
+                moderatorItem.innerHTML += `
+                    <span class="top-1-label absolute top-2 left-2 bg-yellow-500 text-white px-3 py-1 text-xs rounded-full">Top 1</span>
+                `;
+            } else if (index === 1) {
+                moderatorItem.innerHTML += `
+                    <span class="top-2-label absolute top-2 left-2 bg-silver-500 text-white px-3 py-1 text-xs rounded-full">Top 2</span>
+                `;
+            } else if (index === 2) {
+                moderatorItem.innerHTML += `
+                    <span class="top-3-label absolute top-2 left-2 bg-bronze-500 text-white px-3 py-1 text-xs rounded-full">Top 3</span>
+                `;
+            }
+
+            moderatorsList.appendChild(moderatorItem);
+        });
+
+        // Estilos y animaciones para las etiquetas
+        const top1 = document.querySelectorAll('.top-1-label');
+        const top2 = document.querySelectorAll('.top-2-label');
+        const top3 = document.querySelectorAll('.top-3-label');
+        
+        top1.forEach(el => {
+            el.classList.add('animate__animated', 'animate__bounceIn');
+        });
+        top2.forEach(el => {
+            el.classList.add('animate__animated', 'animate__bounceIn');
+        });
+        top3.forEach(el => {
+            el.classList.add('animate__animated', 'animate__bounceIn');
+        });
+    }
+
+    // Mostrar modal de moderadores al hacer clic en el icono
+    document.getElementById('moderators-icon').addEventListener('click', () => {
+        showModerators();
+        document.getElementById('moderators-modal').classList.remove('hidden');
+        // Evitar el scroll de la página
+        document.body.style.overflow = 'hidden';
+    });
+
+    // Cerrar el modal de moderadores
+    document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('moderators-modal').classList.add('hidden');
+        // Permitir el scroll nuevamente
+        document.body.style.overflow = 'auto';
+    });
+
+    // Función para buscar moderadores por nombre
+    document.getElementById('moderator-search').addEventListener('input', (event) => {
+        const searchQuery = event.target.value;
+        showModerators(searchQuery);
+    });
+
+    // Mostrar los moderadores al cargar la página
+    window.onload = showModerators;
+</script>
+
+<!-- Animaciones CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<!-- partial -->
+  
+</body>
+</html>
